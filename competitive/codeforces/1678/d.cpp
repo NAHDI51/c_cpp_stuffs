@@ -1,0 +1,191 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+using vi = vector<int>;
+using vii = vector<vi>;
+using vs = vector<string>;
+using vss = vector<vs>;
+using vb = vector<bool>;
+using vbb  = vector<vb>;
+using ii = pair<int, int>;
+using vpi = vector<ii>;
+using vpii = vector<vpi>;
+using ll = long long;
+using vll = vector<ll>;
+using vvll = vector<vll>;
+using table = unordered_map<unsigned long, int>;
+using pll = pair<ll,ll>;
+using vpl = vector<pll>;
+using vpll = vector<vpl>;
+
+#define f first
+#define s second
+
+#define forn(i, n) for(int i = 0; i < n; i++)
+#define fore(i, a, b) for(int i = a; i <= b; i++)
+#define for1n(i, n) for(int i = 1; i <= n; i++)
+#define rof(i, n) for(int i = n-1; i >= 0; i--)
+#define rofe(i, a, b) for(int i = b; i >= a; i--)
+#define all(x) x.begin(), x.end()
+#define dsc(type) greater<type>
+
+#define Flag cout << "Reached here.\n"
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0);
+
+#define pb push_back
+#define pbb pop_back
+#define sz size
+#define rsz resize
+#define rsv reserve
+#define ins insert
+
+#define lb(a, val) lower_bound(all(a), val);
+#define ub(a, val) upper_bound(all(a), val);
+
+#define onec(x) __builtin_popcount(x)
+#define end0(x) __builtin_clz(x)
+#define beg0(x) __builtin_ctz(x)
+
+#define MAX 1000000000
+#define MIN -MAX
+
+#define mod 1000000007LL
+
+#define clr(x, y) memset(x, y, sizeof(x))
+
+template<class T> bool ckmin(T& a, const T& b) { return b < a ? a = b, 1 : 0; }
+template<class T> bool ckmax(T& a, const T& b) { return a < b ? a = b, 1 : 0; }
+
+int dx[] = {0, 1, -1, 0};
+int dy[] = {1, 0, 0, -1};
+
+ll binpow(ll a, ll b) {
+    a %= mod;
+    ll res = 1;
+    while (b > 0) {
+        if (b & 1) res *= a, res %= mod;
+        a *= a, a %= mod;
+        b >>= 1;
+    }
+    return res;
+}
+
+vi fct(ll n) {
+    vi fac;
+    while(n%2 == 0) n /= 2, fac.pb(2);
+    for(int i = 3; i * i <= n; i += 2) 
+        while(n%i == 0) fac.pb(i), n /= i;
+    if(n > 1) fac.pb(n);
+    return fac;
+}
+
+ll gcd(ll a, ll b) {
+   if (b == 0) return a;
+   return gcd(b, a % b);
+}
+
+ll lcm(ll a, ll b) {
+    return (a*b) / gcd(a, b);
+}
+
+#define maxN 
+
+void solve() {
+    int n, m;
+    cin >> n >> m;
+    string s;
+    cin >> s;
+    map<int, int> col;
+    vi dp(n*m);
+    int ro = 0;
+    //Bits on the current window
+    int bits = 0;
+    forn(i, m) {
+        if(s[i] == '1') col[i]++, ro = 1, bits++;
+        dp[i] = ro;
+        cout << col.sz()+dp[i] << ' ';
+    }  
+
+    for(int i = m; i < n*m; i++) {
+        if(s[i] == '1') {
+            col[i%m]++;
+            bits++;
+        }
+        if(s[i-m] == '1') bits--;
+        dp[i] = dp[i-m]+(bits ? 1 : 0);
+        int ans = dp[i] + col.sz();
+        cout << ans << ' ';
+    }
+    cout << '\n';
+}
+
+int main() {
+    FASTIO;
+    int t;
+    cin >> t;
+    while(t--) solve();
+}
+
+/*
+2D segment tree, TLE and MLE
+*/
+/*
+#define maxN 5001
+ 
+int seg[2*maxN][2*maxN];
+#define sz maxN
+int q(int l1, int r1, int l2, int r2) {
+    l1 += sz, r1 += sz;
+    l2 += sz, r2 += sz;
+    int sm = 0;
+    for(; l1 <= r1; l1 = (l1+1)>>1, r1 = (r1-1)>>1) {
+        int l = l2, r = r2;
+        for(; l <= r; l = (l+1)>>1, r = (r-1)>>1) {
+            if(l1%2) {
+                if(l%2) sm += seg[l1][l];
+                if(r%2 == 0) sm += seg[l1][r];
+            }
+            if(r1%2 == 0) {
+                if(l%2) sm += seg[r1][l];
+                if(r%2 == 0) sm += seg[r1][r];
+            }
+        }
+    }
+    return sm;
+}
+
+void upd(int i1, int i2, int val) {
+    int i = i2+sz;
+    i1 += sz;
+    seg[i1][i] = val;
+    for(i>>=1; i >= 1; i>>=1) {
+        seg[i1][i] = seg[i1][i*2] + seg[i1][i*2+1];
+    }
+ 
+    for(i1>>=1; i1 >= 1; i1>>=1) {
+        int i = i2+sz;
+        seg[i1][i] = seg[i1*2][i] + seg[i1*2+1][i];
+        for(i>>=1; i >= 1; i>>=1) seg[i1][i] = seg[i1][i*2]+seg[i1][i*2+1];
+    }
+}
+ 
+void solve() {
+    int n;
+    cin >> n;
+    vi a(n);
+    forn(i, n) cin >> a[i];
+    forn(i, max(4*n, maxN)) forn(j, max(4*n, maxN)) seg[i][j] = 0;
+    vbb dp(n, vb(n));
+    clr(seg, 0);
+    for(int i = 0; i < n-1; i++) {
+        for(int j = i+1; j < n; j++) {
+            if(a[i] < a[j]) dp[i][j] = true;
+            else upd(i, j, 1);
+        }
+    }
+    int ans = 0;
+    forn(i, n) forn(j, n) if(dp[i][j]) ans += q(i+1, j-1, j+1, n-1);
+    cout << ans << '\n';
+}
+
+*/

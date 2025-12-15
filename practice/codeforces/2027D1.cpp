@@ -1,0 +1,245 @@
+#include <algorithm>
+#include <bitset>
+#include <complex>
+#include <deque>
+#include <exception>
+#include <fstream>
+#include <functional>
+#include <iomanip>
+#include <ios>
+#include <iosfwd>
+#include <iostream>
+#include <istream>
+#include <iterator>
+#include <limits>
+#include <list>
+#include <locale>
+#include <map>
+#include <memory>
+#include <new>
+#include <numeric>
+#include <ostream>
+#include <queue>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <stdexcept>
+#include <streambuf>
+#include <string>
+#include <typeinfo>
+#include <utility>
+#include <valarray>
+#include <vector>
+#include <array>
+#include <unordered_map>
+#include <unordered_set>
+#include <initializer_list>
+#include <tuple>
+
+using namespace std;
+
+
+using vi = vector<int>;
+using vii = vector<vi>;
+using vs = vector<string>;
+using vss = vector<vs>;
+using vb = vector<bool>;
+using vbb  = vector<vb>;
+using ii = pair<int, int>;
+using vpi = vector<ii>;
+using vpii = vector<vpi>;
+using ll = long long;
+using vll = vector<ll>;
+using vvll = vector<vll>;
+using table = unordered_map<unsigned long, int>;
+using pll = pair<ll,ll>;
+using vpl = vector<pll>;
+using vpll = vector<vpl>;
+
+#define f first
+#define s second
+
+#define forn(i, n) for(int i = 0; i < n; i++)
+#define fore(i, a, b) for(int i = a; i <= b; i++)
+#define for1n(i, n) for(int i = 1; i <= n; i++)
+#define rof(i, n) for(int i = n-1; i >= 0; i--)
+#define rofe(i, a, b) for(int i = b; i >= a; i--)
+#define all(x) x.begin(), x.end()
+#define dsc(type) greater<type>
+
+#define Flag cout << "Reached here.\n"
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0);
+
+#define pb push_back
+#define pbb pop_back
+#define sz size
+#define rsz resize
+#define rsv reserve
+#define ins insert
+
+#define lb(a, val) lower_bound(all(a), val);
+#define ub(a, val) upper_bound(all(a), val);
+
+#define onec(x) __builtin_popcount(x)
+#define end0(x) __builtin_clz(x)
+#define beg0(x) __builtin_ctz(x)
+
+#define MAX 10000000000000ll
+#define MIN -MAX
+
+#define mod 1000000007LL
+
+#define clr(x, y) memset(x, y, sizeof(x))
+
+template<class T> bool ckmin(T& a, const T& b) { return b < a ? a = b, 1 : 0; }
+template<class T> bool ckmax(T& a, const T& b) { return a < b ? a = b, 1 : 0; }
+
+int dx[] = {0, 1, -1, 0};
+int dy[] = {1, 0, 0, -1};
+
+void init() {
+    #ifndef ONLINE_JUDGE
+    freopen("output.txt", "w", stdout);
+    freopen("input.txt", "r", stdin);
+    #endif
+}
+
+ll binpow(ll a, ll b) {
+    a %= mod;
+    ll res = 1;
+    while (b > 0) {
+        if (b & 1) res *= a, res %= mod;
+        a *= a, a %= mod;
+        b >>= 1;
+    }
+    return res;
+}
+
+vi fct(ll n) {
+    vi fac;
+    while(n%2 == 0) n /= 2, fac.pb(2);
+    for(int i = 3; i * i <= n; i += 2) 
+        while(n%i == 0) fac.pb(i), n /= i;
+    if(n > 1) fac.pb(n);
+    return fac;
+}
+
+ll gcd(ll a, ll b) {
+   if (b == 0) return a;
+   return gcd(b, a % b);
+}
+
+ll lcm(ll a, ll b) {
+    return (a*b) / gcd(a, b);
+}
+
+#define maxN 
+
+class twodseg {
+    int n, m;
+    vvll seg;
+    public: 
+    twodseg(int n, int m) {
+        this->n = n, this->m = m;
+        seg.rsz(n*2+2, vll(m*2+2, MAX));
+    }
+
+    ll query(int l1, int r1, int l2, int r2) {
+        l1 += n, r1 += n;
+        l2 += m, r2 += m;
+        ll sm = 0;
+        for(; l1 <= r1; l1 = (l1+1)>>1, r1 = (r1-1)>>1) {
+            int l = l2, r = r2;
+            for(; l <= r; l = (l+1)>>1, r = (r-1)>>1) {
+                if(l1%2) {
+                    if(l%2) sm = min(sm, seg[l1][l]);
+                    if(r%2 == 0) sm = (sm, seg[l1][r]);
+                }
+                if(r1%2 == 0) {
+                    if(l%2) sm = min(sm, seg[r1][l]);
+                    if(r%2 == 0) sm = min(sm, seg[r1][r]);
+                }
+            }
+        }
+        return sm;
+    }
+
+    void upd(int i1, int i2, int val) {
+        int i = i2+m;
+        i1 += n;
+        seg[i1][i] = val;
+        for(i>>=1; i >= 1; i>>=1) {
+            seg[i1][i] = min(seg[i1][i*2], seg[i1][i*2+1]);
+        }
+
+        for(i1>>=1; i1 >= 1; i1>>=1) {
+            int i = i2+m;
+            seg[i1][i] = min(seg[i1*2][i], seg[i1*2+1][i]);
+            for(i>>=1; i >= 1; i>>=1) seg[i1][i] = min(seg[i1][i*2],seg[i1][i*2+1]);
+        }
+    }
+};
+
+void solve() {
+    int n, m;
+    cin >> n >> m;
+
+    ll mx = 0;
+    vll a(n+1), b(m+1);
+    for1n(i, n) {
+        cin >> a[i];
+        mx = max(mx, a[i]);
+        a[i] += a[i-1];
+    }
+    for1n(i, m) cin >> b[i];
+    if(mx > b[1]) {
+        cout << -1 << '\n';
+        return;
+    }
+
+    auto psm = [&] (int l, int r) -> ll {
+        return a[r] - a[l-1];
+    };
+    // sort(all(b));
+    auto get = [&](int r, int req) -> int {
+        int lo = 1, hi = r;
+        int ans = -1;
+        while(lo <= hi) {
+            // cout << lo << ' ' << hi << '\n';
+            int m = lo + (hi-lo) / 2;
+            if(psm(m,r) <= req) ans = m, hi = m-1;
+            else lo = m+1;
+        }
+        return ans;
+    };
+
+    vvll dp(n+1, vll(m+1, MAX));
+    twodseg tr(n+1,m+1);
+    dp[1][1] = m-1;
+    tr.upd(1,1,dp[1][1]);
+
+    for1n(j, m) {
+        for1n(i, n) {
+            auto c = get(i, b[j]); 
+            // if(c != -1) cout << c << ' ' << i << ' ' << b[j] << ' ' << psm(c, i) << '\n';
+            if(c != -1) {
+                dp[i][j] = min(dp[i][j], tr.query(c, i, 1, j) + (m-j));
+                tr.upd(i,j,dp[i][j]);
+            }
+        }
+        // cout << '\n';
+    }
+    ll mn = MAX;
+    for(int i = 0; i <= m; i++) mn = min(dp[n][i], mn);
+    cout << mn << '\n';
+}
+
+int main() {
+    //Sublime
+    // init();
+    // FASTIO;
+    int t;
+    cin >> t;
+    while(t--) solve();
+}
+

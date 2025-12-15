@@ -1,0 +1,25 @@
+LONG_SEQUENCE(A, B) {
+    if A or B is empty, return 0
+
+    Let DP[A.length+1][B.length+1] be the array the keeps the longest sequence.
+    //Example: DP[i][j] = LONG_SEQUENCE(A[1, 2, ..., i], B[1, 2, ..., j])
+
+    DP[0][0] = 0.   //0 characters taken from each of the strings
+
+    //i keeps the index for the string A
+    for i = 1 to DP.length
+        //j keeps the index for the string B
+        for j = 1 to DP[0].length 
+
+            //Choosing the optimal prefix.
+            DP[i][j] = max(DP[i-1][j], DP[i][j-1])
+
+            //If A[i] = B[j], we have a matching character 
+            //we can append to the subsequence of A[i-1] and B[j-1].
+            //We will verify if it's the highest seen so far.
+
+            if(A[i] == B[j]) DP[i][j] = max(DP[i][j], DP[i-1][j-1] + 1)
+        
+    //Return DP[A.length][B.legnth] as it denotes the answer to the main problem.
+    return DP[A.length][B.length]
+}

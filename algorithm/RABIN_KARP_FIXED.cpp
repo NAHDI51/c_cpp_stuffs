@@ -1,0 +1,200 @@
+#include <algorithm>
+#include <bitset>
+#include <complex>
+#include <deque>
+#include <exception>
+#include <fstream>
+#include <functional>
+#include <iomanip>
+#include <ios>
+#include <iosfwd>
+#include <iostream>
+#include <istream>
+#include <iterator>
+#include <limits>
+#include <list>
+#include <locale>
+#include <map>
+#include <memory>
+#include <new>
+#include <numeric>
+#include <ostream>
+#include <queue>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <stdexcept>
+#include <streambuf>
+#include <string>
+#include <typeinfo>
+#include <utility>
+#include <valarray>
+#include <vector>
+#include <array>
+#include <unordered_map>
+#include <unordered_set>
+#include <initializer_list>
+#include <tuple>
+
+using namespace std;
+
+
+using vi = vector<int>;
+using vii = vector<vi>;
+using vs = vector<string>;
+using vss = vector<vs>;
+using vb = vector<bool>;
+using vbb  = vector<vb>;
+using ii = pair<int, int>;
+using vpi = vector<ii>;
+using vpii = vector<vpi>;
+using ll = long long;
+using vll = vector<ll>;
+using vvll = vector<vll>;
+using table = unordered_map<unsigned long, int>;
+using pll = pair<ll,ll>;
+using vpl = vector<pll>;
+using vpll = vector<vpl>;
+
+#define f first
+#define s second
+
+#define forn(i, n) for(int i = 0; i < n; i++)
+#define fore(i, a, b) for(int i = a; i <= b; i++)
+#define for1n(i, n) for(int i = 1; i <= n; i++)
+#define rof(i, n) for(int i = n-1; i >= 0; i--)
+#define rofe(i, a, b) for(int i = b; i >= a; i--)
+#define all(x) x.begin(), x.end()
+#define dsc(type) greater<type>
+
+#define Flag cout << "Reached here.\n"
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0);
+
+#define pb push_back
+#define pbb pop_back
+#define sz size
+#define rsz resize
+#define rsv reserve
+#define ins insert
+
+#define lb(a, val) lower_bound(all(a), val);
+#define ub(a, val) upper_bound(all(a), val);
+
+#define onec(x) __builtin_popcount(x)
+#define end0(x) __builtin_clz(x)
+#define beg0(x) __builtin_ctz(x)
+
+#define MAX 1000000000ll
+#define MIN -MAX
+
+#define mod 1000000007LL
+
+#define clr(x, y) memset(x, y, sizeof(x))
+
+template<class T> bool ckmin(T& a, const T& b) { return b < a ? a = b, 1 : 0; }
+template<class T> bool ckmax(T& a, const T& b) { return a < b ? a = b, 1 : 0; }
+
+int dx[] = {0, 1, -1, 0};
+int dy[] = {1, 0, 0, -1};
+
+void init() {
+    #ifndef ONLINE_JUDGE
+    freopen("output.txt", "w", stdout);
+    freopen("input.txt", "r", stdin);
+    #endif
+}
+
+ll binpow(ll a, ll b) {
+    a %= mod;
+    ll res = 1;
+    while (b > 0) {
+        if (b & 1) res *= a, res %= mod;
+        a *= a, a %= mod;
+        b >>= 1;
+    }
+    return res;
+}
+
+vi fct(ll n) {
+    vi fac;
+    while(n%2 == 0) n /= 2, fac.pb(2);
+    for(int i = 3; i * i <= n; i += 2) 
+        while(n%i == 0) fac.pb(i), n /= i;
+    if(n > 1) fac.pb(n);
+    return fac;
+}
+
+ll gcd(ll a, ll b) {
+   if (b == 0) return a;
+   return gcd(b, a % b);
+}
+
+ll lcm(ll a, ll b) {
+    return (a*b) / gcd(a, b);
+}
+
+#define maxN 
+
+
+// Ready to use.
+
+void make_rabin_karp(string& s) {
+    int n = s.size();
+    const ll a = 911382;       
+    const ll b = 1000000007ll;       
+    vector<ll> h(n+1, 0), p(n+1, 1);
+
+    for (int i = 0; i < n; i++) {
+        h[i+1] = (h[i] * a + (s[i]-'a'+1)) % b;
+        p[i+1] = (p[i] * a) % b;
+    }
+
+    auto hash = [&](int l, int r) -> ll {
+        ll res = (h[r+1] - h[l] * p[r-l+1]) % b;
+        if (res < 0) res += b;
+        return res;
+    };
+    
+}
+
+void rabin_karp_double_hashing(string& s) {
+    ll a1, b1, a2, b2;
+    a1 = 911111;
+    a2 = 3571;
+    b1 = mod;
+    b2 = mod+2; 
+
+    vll h1(n+1), p1(n+1,1), h2(n+1), p2(n+1,1);
+    forn(i, n) {
+        h1[i+1] = (h1[i]*a1 + (s[i]-'a'+1)) % b1;
+        h2[i+1] = (h2[i]*a2 + (s[i]-'a'+1)) % b2;
+        p1[i+1] = (p1[i]*a1) % b1;
+        p2[i+1] = (p2[i]*a2) % b2;
+    }
+    auto hash = [&](int l, int r) -> pll {
+        ll r1 = (h1[r+1] - h1[l] * p1[r-l+1]) % b1;
+        if(r1 < 0) r1 += b1;
+        ll r2 = (h2[r+1] - h2[l] * p2[r-l+1]) % b2;
+        if(r2 < 0) r2 += b2;
+
+        return {r1,r2};
+    };
+
+    for(int i = n-1; i >= 1; i--) {
+        if(hash(0, i-1) == hash(n-i, n-1)) {
+            auto val = hash(0,i-1);
+            for(int j = 1; j < n-1; j++) {
+                if(j+i-1 < n-1 && hash(j,j+i-1) == val) {
+                    cout << s.substr(0, i) << '\n';
+                    return;
+                }
+            }
+        }
+    }
+}
+
+int main() {
+    string s;
+    cin >> s;
+    make_rabin_karp(s);
+}

@@ -1,0 +1,208 @@
+    #include <bits/stdc++.h>
+    using namespace std;
+     
+    #pragma gcc optimize("0fast")
+     
+    using vi = vector<int>;
+    using vii = vector<vi>;
+    using vs = vector<string>;
+    using vss = vector<vs>;
+    using vb = vector<bool>;
+    using vbb  = vector<vb>;
+    using ii = pair<int, int>;
+    using vpi = vector<ii>;
+    using vpii = vector<vpi>;
+    using ll = long long;
+    using vll = vector<ll>;
+    using vvll = vector<vll>;
+    using table = unordered_map<unsigned long, int>;
+    using pll = pair<ll,ll>;
+    using vpl = vector<pll>;
+    using vpll = vector<vpl>;
+     
+    #define f first
+    #define s second
+     
+    #define forn(i, n) for(int i = 0; i < n; i++)
+    #define fore(i, a, b) for(int i = a; i <= b; i++)
+    #define for1n(i, n) for(int i = 1; i <= n; i++)
+    #define rof(i, n) for(int i = n-1; i >= 0; i--)
+    #define rofe(i, a, b) for(int i = b; i >= a; i--)
+    #define all(x) x.begin(), x.end()
+    #define dsc(type) greater<type>
+     
+    #define Flag cout << "Reached here.\n"
+    #define FASTIO ios::sync_with_stdio(0); cin.tie(0);
+     
+    #define pb push_back
+    #define pbb pop_back
+    #define sz size
+    #define rsz resize
+    #define rsv reserve
+    #define ins insert
+     
+    #define lb(a, val) lower_bound(all(a), val);
+    #define ub(a, val) upper_bound(all(a), val);
+     
+    #define onec(x) __builtin_popcount(x)
+    #define end0(x) __builtin_clz(x)
+    #define beg0(x) __builtin_ctz(x)
+     
+    #define MAX 1000000000
+    #define MIN -MAX
+     
+    #define mod 1000000007LL
+     
+    #define clr(x, y) memset(x, y, sizeof(x))
+     
+    template<class T> bool ckmin(T& a, const T& b) { return b < a ? a = b, 1 : 0; }
+    template<class T> bool ckmax(T& a, const T& b) { return a < b ? a = b, 1 : 0; }
+     
+    int dx[] = {0, 1, -1, 0};
+    int dy[] = {1, 0, 0, -1};
+     
+    ll binpow(ll a, ll b) {
+        a %= mod;
+        ll res = 1;
+        while (b > 0) {
+            if (b & 1) res *= a, res %= mod;
+            a *= a, a %= mod;
+            b >>= 1;
+        }
+        return res;
+    }
+     
+    vi fct(ll n) {
+        vi fac;
+        while(n%2 == 0) n /= 2, fac.pb(2);
+        for(int i = 3; i * i <= n; i += 2) 
+            while(n%i == 0) fac.pb(i), n /= i;
+        if(n > 1) fac.pb(n);
+        return fac;
+    }
+     
+    ll gcd(ll a, ll b) {
+       if (b == 0) return a;
+       return gcd(b, a % b);
+    }
+     
+    ll lcm(ll a, ll b) {
+        return (a*b) / gcd(a, b);
+    }
+     
+    #define maxN 100003
+     
+    int n, m;
+     
+    int len;
+    int Len;
+    struct query {
+    int l, r, idx, k;
+    bool operator<(query& b) {
+        auto a = *this;
+        if(a.l/len == b.l/len) return ((a.l/len) & 1) ? a.l < b.l : a.l > b.l;
+        return ii{a.l, a.r} < ii{b.l, b.r};
+    }
+    };
+     
+    int b[maxN], a[maxN];
+     
+    inline void upd(int i, bool ok) {
+        if(ok) b[i/Len]++, a[i]++;
+        else b[i/Len]--, a[i]--;
+    }
+    inline int qu(int l, int r) {
+        int cl = l/Len, cr = r/Len;
+        int sm = 0;
+        if(cl == cr) fore(i, l, r) sm += a[i];
+        else {
+        cl++;
+        fore(i, l, cl*Len-1) sm += a[i];
+        fore(i, cl, cr-1) sm += b[i];
+        fore(i, cr*Len, r) sm += a[i];
+        }
+        return sm;
+    }
+     
+    int siz[maxN];
+    query q[maxN];
+    int arr[maxN];
+    vi adj[maxN];
+    int st[maxN];
+    int ans[maxN];
+    int occ[maxN];
+    int cnt = 0;
+     
+    void dfs(int u, int p) {
+        st[u] = cnt++;
+        for(auto v : adj[u]) {
+            if(v == p) continue;
+            dfs(v, u);
+            siz[u] += siz[v];
+        }
+        siz[u]++;
+    }
+     
+    inline void add(int i) {
+        occ[arr[i]]++;
+        upd(occ[arr[i]]-1, 0);
+        upd(occ[arr[i]], 1);
+    }
+    inline void rmv(int i) {
+        occ[arr[i]]--;
+        upd(occ[arr[i]], 1);
+        upd(occ[arr[i]]+1, 0);
+    }
+     
+    void mo() {
+        forn(i, n) add(i);
+        int l = 0, r = n-1;
+        forn(i, m) {
+            while(l < q[i].l) rmv(l++);
+            while(l > q[i].l) add(--l);
+            while(r > q[i].r) rmv(r--);
+            while(r < q[i].r) add(++r);
+            
+            ans[q[i].idx] = qu(q[i].k, maxN-1);
+        }
+        forn(i, m) cout << ans[i] << '\n';
+        return;
+    }
+     
+     
+    void solve() {
+        cin >> n >> m;
+        forn(i, n) cin >> arr[i];
+     
+        forn(i, n-1) {
+            int a, b;
+            cin >> a >> b;
+            a--, b--;
+            adj[a].pb(b), adj[b].pb(a);
+        }
+        dfs(0, -1);
+        len = sqrt(m+0.0)+1;
+        Len = sqrt(n+0.0)+1; 
+        
+        //Associate the value to where it started.
+        vi tmp(n);
+        forn(i, n) tmp[i] = arr[i];
+        forn(i, n) arr[st[i]] = tmp[i];
+     
+        forn(i, m) {
+            int v, k;
+            cin >> v >> k;
+            v--;
+            q[i].k = k, q[i].l = st[v], q[i].r = st[v]+siz[v]-1;
+            q[i].idx = i;
+        }
+        sort(q, q+m);
+        mo();
+     
+    }
+     
+    int main() {
+        FASTIO;
+        solve();
+    }
+     
